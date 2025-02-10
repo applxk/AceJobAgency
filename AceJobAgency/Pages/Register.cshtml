@@ -1,0 +1,159 @@
+﻿@page
+@model AceJobAgency.Pages.RegisterModel
+@{
+}
+
+<div class="container mt-5">
+    <div class="row justify-content-center align-items-center">
+        <div class="col-sm-12 col-md-12 col-lg-6">
+            <h1 class="mb-3">Membership Registration</h1>
+
+            <form method="post" enctype="multipart/form-data">
+                @Html.AntiForgeryToken()
+                <div asp-validation-summary="All" class="text-danger"></div>
+
+                <div class="mb-3">
+                    <label class="form-label" asp-for="RModel.FirstName">First Name</label>
+                    <input asp-for="RModel.FirstName" class="form-control" required />
+                    <span asp-validation-for="RModel.FirstName" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label" asp-for="RModel.LastName">Last Name</label>
+                    <input asp-for="RModel.LastName" class="form-control" required />
+                    <span asp-validation-for="RModel.LastName" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label" asp-for="RModel.Gender">Gender</label>
+                    <select asp-for="RModel.Gender" class="form-select" required>
+                        <option value="Male">Male</option>
+                        <option value="Female">Female</option>
+                        <option value="Other">Other</option>
+                    </select>
+                    <span asp-validation-for="RModel.Gender" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label" asp-for="RModel.NRIC">NRIC</label>
+                    <input asp-for="RModel.NRIC" class="form-control" required />
+                    <span asp-validation-for="RModel.NRIC" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label" asp-for="RModel.Email">Email Address</label>
+                    <input asp-for="RModel.Email" class="form-control" required />
+                    <span asp-validation-for="RModel.Email" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label" asp-for="RModel.Password">Password</label>
+                    <input type="password" asp-for="RModel.Password" id="Password" class="form-control" oninput="checkPasswordStrength();" required />
+                    <span asp-validation-for="RModel.Password" class="text-danger"></span>
+                    <!-- Password feedback message for rules -->
+                    <small id="passwordRule" class="text-danger"></small>
+                    <!-- Strong password feedback message -->
+                    <small id="passwordStrength" class="text-success"></small>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label" asp-for="RModel.ConfirmPassword">Confirm Password</label>
+                    <input type="password" asp-for="RModel.ConfirmPassword" class="form-control" required />
+                    <span asp-validation-for="RModel.ConfirmPassword" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label" asp-for="RModel.DateOfBirth">Date of Birth</label>
+                    <input type="date" asp-for="RModel.DateOfBirth" class="form-control" required />
+                    <span asp-validation-for="RModel.DateOfBirth" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label" asp-for="RModel.Resume">Resume (.docx or .pdf file)</label>
+                    <input asp-for="RModel.Resume" type="file" class="form-control" accept=".docx,.pdf" required />
+                    <span asp-validation-for="RModel.Resume" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label" asp-for="RModel.WhoAmI">Who Am I</label>
+                    <textarea asp-for="RModel.WhoAmI" class="form-control" required></textarea>
+                    <span asp-validation-for="RModel.WhoAmI" class="text-danger"></span>
+                </div>
+
+                <input type="hidden" id="recaptchaResponse" name="recaptchaResponse" />
+
+                <div class="mb-3">
+                    <button type="submit" class="btn btn-primary">Register</button>
+                </div>
+            </form>
+
+            <script>
+                grecaptcha.ready(function () {
+                    grecaptcha.execute('6LeartAqAAAAAECV8wgj_9XzXvdBXuXL_aRzzu2V', { action: 'register' }).then(function (token) {
+                        document.getElementById('recaptchaResponse').value = token;
+                    });
+                });
+            </script>
+
+            @section Scripts {
+                <script>
+                    document.getElementById("FormSubmit").addEventListener("click", function (e) {
+                        // Prevent form submission to sanitize input first
+                        e.preventDefault();
+
+                        const sanitizedInput = sanitizeInput(document.getElementById("InputField").value);
+                        document.getElementById("InputField").value = sanitizedInput;
+
+                        // If needed, submit the form after sanitizing input
+                        document.querySelector("form").submit();
+                    });
+
+                    function sanitizeInput(input) {
+                        // Example sanitization: Remove any HTML tags
+                        return input.replace(/<[^>]*>/g, '');
+                    }
+                </script>
+            }
+        </div>
+    </div>
+</div>
+
+<script>
+    function checkPasswordStrength() {
+        const password = document.getElementById('Password').value;
+        const feedbackRule = document.getElementById('passwordRule');
+        const feedbackStrength = document.getElementById('passwordStrength');
+
+        // Regular Expression (Matches the server-side rule)
+        const regex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).{12,}$/;
+
+        if (!password) {
+            feedbackRule.textContent = "";
+            feedbackStrength.textContent = "";
+            return;
+        }
+
+        let message = "";
+        let color = "";
+
+        if (!regex.test(password)) {
+            message = "Weak";
+            color = "red";
+            feedbackRule.textContent = "Password must be at least 12 characters long and include upper-case, lower-case, numbers, and special characters.";
+        } else {
+            message = "Strong";
+            color = "green";
+            feedbackRule.textContent = ""; // Hide the rule message if password is strong
+        }
+
+        feedbackStrength.textContent = message;
+        feedbackStrength.style.color = color;
+    }
+
+    // Attach event listener to password input field
+    document.addEventListener("DOMContentLoaded", function () {
+        document.getElementById("Password").addEventListener("input", checkPasswordStrength);
+    });
+</script>
+
+
